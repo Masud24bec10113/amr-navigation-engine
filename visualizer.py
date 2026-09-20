@@ -17,7 +17,7 @@ def launch_animated_dashboard(raw_path, obstacles, start, goal):
     w_left_arr, w_right_arr, heading_arr = [], [], []
 
     for k in range(len(path) - 1):
-        disp = path[k+1] - path[k]
+        disp = path[k + 1] - path[k]
         h = np.arctan2(disp[1], disp[0])
         w_l, w_r = kin.inverse_kinematics(linear_vel=1.0, angular_vel=h * 0.15)
         w_left_arr.append(w_l)
@@ -86,3 +86,30 @@ def launch_animated_dashboard(raw_path, obstacles, start, goal):
     anim = FuncAnimation(fig, update, frames=interp_steps, interval=40, blit=False, repeat=True)
     plt.tight_layout()
     plt.show()
+
+
+if __name__ == "__main__":
+    from planning.astar import AStarPlanner
+
+    print("=" * 60)
+    print(" [STANDALONE] RUNNING VISUALIZER TEST HARNESS")
+    print("=" * 60)
+
+    start_pos = (2.0, 2.0)
+    goal_pos = (24.0, 24.0)
+    obs = [(8.0, 8.0, 2.5), (16.0, 10.0, 3.0), (10.0, 19.0, 2.2), (19.0, 18.0, 2.4)]
+
+    planner = AStarPlanner(grid_size=28)
+    computed_path = planner.plan(start_pos, goal_pos, obs)
+
+    print(f"[*] Trajectory generated: {len(computed_path)} waypoints")
+    print("[*] Opening visualization window...")
+
+    try:
+        launch_animated_dashboard(np.array(computed_path), obs, start_pos, goal_pos)
+    except KeyboardInterrupt:
+        print("\n[!] Session interrupted by user (Ctrl+C).")
+    finally:
+        print("\n" + "=" * 60)
+        print(" [COMPLETED] Visualizer closed. Process terminated safely.")
+        print("=" * 60)
